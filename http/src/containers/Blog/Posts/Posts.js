@@ -45,7 +45,7 @@ class Posts extends Component {
                 return (
                     <Link
                         key={post.id}
-                        to={'/' + post.id}
+                        to={'/posts/' + post.id}
                     >
                         <Post
                             key={post.id}
