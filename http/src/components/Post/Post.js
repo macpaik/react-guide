@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from "react-router-dom"; // to get props from upper class
 
 import './Post.css';
 
