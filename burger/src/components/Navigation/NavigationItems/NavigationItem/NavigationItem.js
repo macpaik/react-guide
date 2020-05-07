@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import styles from "./NavigationItem.module.css";
 
@@ -7,12 +7,13 @@ const navigationItem = (props) => (
   <li
     className={styles.NavigationItem}
   >
-    <Link
+    <NavLink
         to={props.link}
-        className={props.active ? styles.active : null}
+        exact
+        activeClassName={styles.active}
     >
       {props.children}
-    </Link>
+    </NavLink>
   </li>
 );
 
