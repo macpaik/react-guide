@@ -12,9 +12,7 @@ import * as burgerBuilderActions from '../../store/actions/index';
 
 class BurgerBuilder extends Component {
   state = {
-    purchasing: false,
-    loading: false,
-    error: false
+    purchasing: false
   };
 
   componentDidMount() {
@@ -29,6 +27,8 @@ class BurgerBuilder extends Component {
     //         error: true
     //       });
     //     });
+
+    this.props.onInitIngredients();
   }
 
   updatePurchaseState (ingredient) {
@@ -100,6 +100,7 @@ class BurgerBuilder extends Component {
     // });
 
     // after inject redux
+    this.props.onInitPurchase();
     this.props.history.push('/checkout');
   };
 
@@ -111,7 +112,7 @@ class BurgerBuilder extends Component {
       disabledInfo[key] = disabledInfo[key] <= 0
     }
     let orderSummary = null;
-    let burger = this.state.error ? <p>Ingredients can't be loaded!</p> : <Spinner />;
+    let burger = this.props.error ? <p>Ingredients can't be loaded!</p> : <Spinner />;
     if(this.props.ings) {
       burger = (
           <React.Fragment>
@@ -133,9 +134,6 @@ class BurgerBuilder extends Component {
           purchaseContinued={this.purchaseContinueHandler}
       />;
     }
-    if (this.state.loading) {
-      orderSummary = <Spinner />
-    }
     return (
       <React.Fragment>
         <Modal
@@ -152,15 +150,18 @@ class BurgerBuilder extends Component {
 
 const mapStateToProps = state => {
   return {
-    ings: state.ingredients,
-    price: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     onIngredientAdded: (ingName) => dispatch(burgerBuilderActions.addIngredient(ingName)),
-    onIngredientRemoved: (ingName) => dispatch(burgerBuilderActions.removeIngredient(ingName))
+    onIngredientRemoved: (ingName) => dispatch(burgerBuilderActions.removeIngredient(ingName)),
+    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients()),
+    onInitPurchase: () => dispatch(burgerBuilderActions.purchaseInit())
   };
 };
 
