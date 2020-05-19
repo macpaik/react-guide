@@ -2,10 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from "./IngredientList";
+import ErrorModal from "../UI/ErrorModal";
 import Search from './Search';
 
 const Ingredients = () => {
     const [ userIngredients, setUserIngredients ] = useState([]);
+    const [ isLoading, setIsLoading ] = useState(false);
+    const [ error, setError ] = useState();
 
     // Deleted because of fetched by filter
     // useEffect(() => {
@@ -33,11 +36,13 @@ const Ingredients = () => {
     }, []);
 
     const addIngredientsHandler = ingredient => {
+        setIsLoading(true);
         fetch('https://react-hooks-update-65c60.firebaseio.com/ingredients.json', {
             method: 'POST',
             body: JSON.stringify(ingredient),
             headers: { 'Content-Type': 'application/json' }
         }).then(response => {
+            setIsLoading(false);
             return response.json();
         }).then(responseData => {
             setUserIngredients(prevIngredients => [
@@ -47,13 +52,41 @@ const Ingredients = () => {
         });
     };
 
+    const removeIngredientHandler = ingredientId => {
+        setIsLoading(true);
+        fetch(
+            `https://react-hooks-update.firebaseio.com/ingredients/${ingredientId}.jon`,
+            {
+                method: 'DELETE'
+            }
+        ).then(response => {
+            setIsLoading(false);
+            setUserIngredients(prevIngredients =>
+                prevIngredients.filter(ingredient => ingredient.id !== ingredientId)
+            );
+        }).catch(error => {
+            setError(error.message);
+
+        });
+    };
+
+    const clearError = () => {
+        setError(null);
+        setIsLoading(false);
+    }
+
   return (
     <div className="App">
-      <IngredientForm onAddIngredient={addIngredientsHandler} />
+        {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
+
+      <IngredientForm
+          onAddIngredient={addIngredientsHandler}
+          loading={isLoading}
+      />
 
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler} />
-        <IngredientList ingredients={userIngredients} onRemoveItem={() => {}} />
+        <IngredientList ingredients={userIngredients} onRemoveItem={removeIngredientHandler} />
       </section>
     </div>
   );
