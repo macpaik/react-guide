@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import Card from '../UI/Card';
+import useHttp from "../../hooks/http";
 import './Search.css';
 
 const Search = React.memo(props => {
     const { onLoadIngredients } = props;
     const [enteredFilter, setEnteredFilter] = useState('');
     const inputRef = useRef();
+    const {isLoading, data, error, sendRequest, clear} = useHttp();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -14,6 +16,10 @@ const Search = React.memo(props => {
                 const query = enteredFilter.length === 0
                     ? ''
                     : `?orderBy="title"&equalTo="${enteredFilter}"`;
+                sendRequest(
+                    'https://react-hooks-update-65c60.firebaseio.com/ingredients.json' + query,
+                    'GET'
+                );
                 fetch('https://react-hooks-update-65c60.firebaseio.com/ingredients.json' + query).then(
                     response => response.json()
                 ).then(responseData => {
@@ -34,6 +40,10 @@ const Search = React.memo(props => {
             clearTimeout(timer);
         };
     }, [enteredFilter, onLoadIngredients, inputRef]);
+
+    useEffect(() => {
+        if (!isLoading && !error &&)
+    }, [data, isLoading, error]);
 
   return (
     <section className="search">
