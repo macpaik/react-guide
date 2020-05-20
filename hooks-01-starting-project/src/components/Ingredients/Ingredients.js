@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect, useCallback } from 'react';
+import React, { useReducer, useState, useEffect, useCallback, useMemo } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from "./IngredientList";
@@ -66,7 +66,7 @@ const Ingredients = () => {
         dispatch({type: 'SET', ingredients: filteredIngredients});
     }, []);
 
-    const addIngredientsHandler = ingredient => {
+    const addIngredientsHandler = useCallback(ingredient => {
         // setIsLoading(true);
         dispatchHttp({type: 'SEND'});
         fetch('https://react-hooks-update-65c60.firebaseio.com/ingredients.json', {
@@ -84,9 +84,9 @@ const Ingredients = () => {
             // ]);
             dispatch({type: 'ADD', ingredient: { id: responseData.name, ...ingredient}})
         });
-    };
+    }, []);
 
-    const removeIngredientHandler = ingredientId => {
+    const removeIngredientHandler = useCallback(ingredientId => {
         // setIsLoading(true);
         dispatchHttp({type: 'SEND'});
         fetch(
@@ -106,12 +106,21 @@ const Ingredients = () => {
             // setIsLoading(false);
             dispatchHttp({type: 'ERROR', errorMessage: error.message})
         });
-    };
+    }, []);
 
-    const clearError = () => {
+    const clearError = useCallback(() => {
         // setError(null);
         dispatchHttp({type: 'CLEAR'})
-    }
+    }, []);
+
+    const ingredientList = useMemo(() => {
+        return (
+            <IngredientList
+                ingredients={userIngredients}
+                onRemoveItem={removeIngredientHandler}
+            />
+        );
+    }, [userIngredients, removeIngredientHandler]);
 
   return (
     <div className="App">
@@ -124,7 +133,7 @@ const Ingredients = () => {
 
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler} />
-        <IngredientList ingredients={userIngredients} onRemoveItem={removeIngredientHandler} />
+          {ingredientList}
       </section>
     </div>
   );
